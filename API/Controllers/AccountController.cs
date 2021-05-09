@@ -18,6 +18,9 @@ namespace API.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly TokenService _tokenService;
+
+        public object ModalState { get; private set; }
+
         public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, TokenService tokenService)
         {
             _tokenService = tokenService;
@@ -48,11 +51,13 @@ namespace API.Controllers
         {
             if (await _userManager.Users.AnyAsync(x => x.Email == registerDTO.Email))
             {
-                return BadRequest("Email taken");
+                ModelState.AddModelError("email", "Email taken");
+                return ValidationProblem();
             }
             if (await _userManager.Users.AnyAsync(x => x.UserName == registerDTO.Username))
             {
-                return BadRequest("Username taken");
+                ModelState.AddModelError("username", "Username taken");
+                return ValidationProblem();
             }
 
             var user = new AppUser 
